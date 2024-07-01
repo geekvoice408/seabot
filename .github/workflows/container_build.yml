@@ -25,6 +25,6 @@ jobs:
             - name: Login to ACR and deploy
               run: |
                   base=$(echo "seabot/${{inputs.environment}}" | tr '[:upper:]' '[:lower:]')
-                  
+                  env=$(echo "${{inputs.environment}}" | tr '[:upper:]' '[:lower:]')
                   az acr login --name bpidocker
-                  az acr build -t $base:latest -t ${{ github.sha }} -r bpidocker --build-arg environment=${{inputs.environment}} .
+                  az acr build -t $base:latest -t ${{ github.sha }} -r bpidocker --build-arg environment=$env .
