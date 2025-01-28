@@ -1,0 +1,36 @@
+on:
+    workflow_dispatch:
+        inputs:
+            environment:
+                type: environment
+                required: true
+    push:
+        branches:
+            - dev
+
+name: Publish Seabot Image
+permissions:
+    contents: "read"
+    id-token: "write"
+
+jobs:
+    build-and-deploy:
+        environment: ${{ inputs.environment || 'Development' }}
+        env:
+            environment: ${{ inputs.environment || 'Development' }}
+        runs-on: ubuntu-latest
+        steps:
+            - name: "Checkout Source"
+              uses: actions/checkout@main
+            - name: "Az CLI login"
+              uses: azure/login@v2
+              with:
+                  client-id: ${{ secrets.AZURE_CLIENT_ID }}
+                  tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+                  subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+            - name: Login to ACR and deploy
+              run: |
+                  base=$(echo "seabot/${{ env.environment }}" | tr '[:upper:]' '[:lower:]')
+                  env=$(echo "${{ env.environment }}" | tr '[:upper:]' '[:lower:]')
+                  az acr login --name bpidocker
+                  az acr build -t $base:latest -t $base:${{ github.sha }} -r bpidocker --build-arg environment=$env .
