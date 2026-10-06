@@ -1,10 +1,4 @@
-import {
-  EmbedBuilder,
-  Events,
-  GuildMember,
-  Message,
-  PermissionFlagsBits,
-} from "discord.js";
+import { EmbedBuilder, Events, GuildMember, Message } from "discord.js";
 
 import DiscordEventRouter from "../discord/DiscordEventRouter";
 import { configuration } from "../server";
@@ -54,10 +48,7 @@ async function onMessageCreate(message: Message) {
 
 function isStaff(member: GuildMember) {
   const moderatorRoleId = configuration.roleIds?.["moderator"];
-  return (
-    member.permissions.has(PermissionFlagsBits.ManageMessages) ||
-    (!!moderatorRoleId && member.roles.cache.has(moderatorRoleId))
-  );
+  return !!moderatorRoleId && member.roles.cache.has(moderatorRoleId);
 }
 
 async function modLog(
